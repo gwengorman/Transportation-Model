@@ -1,0 +1,287 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with`a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{A Deeper Look into The Transportation Model}
+\author{Gwendolyn Gorman}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Operations research deals most often with the optimization of linear programs. Linear programs(LP) are useful in a multitude of ways including scheduling, manufacturing, and transportation of goods. Specifically, the transportation model focuses on the minimization of cost when transporting goods from supplier to those supplied. The following sections will briefly explain the transportation model, the importance of the simplex method, the associated algorithms to solve the model, and the new method to solve a "real world" transportation problem(TP) using fuzzy set theory. 
+\end{abstract}
+
+\section{Introduction}
+
+Before delving into the numerous ways to solve a transportation model, the formulation is important to note. For this network problem, let there be $m$ sources and $n$ destinations where each is called a node. The arcs are defined as the routes between sources and destinations (see figure 1). The arcs represent two important pieces of information: the cost per unit, $ c_{ij} $, and the amount shipped, $ x_{ij}$. The total supply is $a_{i}$ where $i = 1,2,\dots,m$ and the total demand is $b_{j}$ where $j=1,2,\dots,n.$ The main objective is to minimize cost of shipping while still meeting all constraints ("The Transportation Problem",n.d). Mathematically we write this as,
+
+\vspace{0.25 cm}
+\hspace{2 cm}
+
+Minimize 
+$\sum\limits_{i=1}^m \sum\limits_{j=1}^n c_{ij} x_{ij}$  
+
+Subject to
+\newline
+\vspace{0.25 cm}
+\hspace{2 cm}
+$\sum\limits_{j=1}^nx_{ij} \leq a_{i}, \text{for}$
+\space i=1,2,\dots,m.
+\newline
+\vspace{0.25 cm}
+\hspace{2 cm}
+$\sum\limits_{i=1}^n x_{ij} \geq b_j, \text{for}$
+\space j=1,2,\dots,n.
+\hspace {2cm}
+ where $x_{ij}\geq 0 $
+
+
+\begin{figure}
+[h]
+\centering
+\includegraphics[width=0.6\textwidth]{model.png}
+\caption{\label{fig:frog}The Transportation Model.}
+\end{figure}
+
+\section{The Transportation Model}
+
+\subsection{Using the Simplex Method to Solve Transportation Models}
+
+Once an LP equation is formulated, the next step is the simplex method. For sake of length this paper will not demonstrate the algorithm for simplex method. However, it is important to mention that the simplex method works to solve any optimization problem. In certain situations, LP models are degenerate. Degeneracy is caused by redundant constraints that do not affect the feasible region or optimal solution(Chvátal,1984). Degenerate LP's cause cycling of the simplex method. However, Bland's Rule is a useful theorem that overcomes cycling--getting stuck in a loop of iterations that result in a repeated dictionary. Bland's Rule proves that the simplex method will work for any LP. Below is the proof.
+\newline
+
+\textbf{Bland’s Rule}: "For the entering variable, when all variables have a positive coefficient in the objective function, choose the one with the smallest subscript. For the exiting variable choose also the variable with smallest subscript"(Camarena, n.d).
+\newline
+\textbf{Theorem:} The simplex method using Bland’s rule will terminate.
+\newline
+
+\textbf{Proof:}
+ Let us assume that the simplex method fails to optimize, cycling forever. By definition of cycling, at a certain iteration you will obtain a dictionary with the exact set of basic variables as a previous dictionary. In this case the basic variables, along with their whole dictionary, must repeat. With this assumption, all that needs to be proven is that Bland’s Rule will never repeat a dictionary/basis. Assume, by contradiction, that $D_{0},D_1,\dots,D_{k-1},D_k$ = $D_0$ is a cycle of dictionaries each obtained from the previous by Bland’s Rule. Thus, the model is degenerate. Otherwise the objective function would be larger in the last iteration than in the previous. Say a variable is fickle if it enters or leaves the basis during the iteration process; meaning, it is basic in one dictionary and non-basic in another dictionary. Let $x_t$ be the fickle variable with largest index. Then, for some dictionary $D_p$ in the cycle,$x_t$ 
+ must exit, with variable $x_s$ entering the basis. During another cycle, $x_t$ will reenter the basis again in the dictionary, say, $D_q$ to $D_{q+1}$. 
+ Assume $D_p$ is:
+ 
+ \begin{equation}
+     x_i= b_i- \sum\limits_{j\notin B_p} a_{ij} x_{j} 
+\end{equation}
+\begin{equation}
+ z= v+\sum\limits_{j\notin B_p} c_{j} x_{j} 
+ \end{equation}
+
+Where $B_p$ is the set of indices of basic variables for dictionary $D_p$.
+
+Since all the pivots are degenerate in $D_q$ the objective function still has value $v$ , so its last row must look like $z=v+\sum\limits_{j=1}^{m+n} c^{*}_{j} x_{j}$. By definition, all dictionaries are systems of equations with equal solutions. Thus, any solution (even if not feasible) of $D_s$ must also be a solution of $D_t$. Let the nonbasic variable in $D_s$ be $x_a=y, x_j=0 for j \neq a, j \in B_p$, which means $x_i= b_i-a_{is}y$ for the basic variables. This choice will also solve $D_q$, thus, setting the objective functions equal:
+
+\begin{equation}
+    v+c_sy= v+c^*_sy+ \sum\limits_{i\in B_p} c^*_i (b_i-a_{is}y).
+\end{equation}
+ 
+then simplifying, 
+
+\begin{equation}
+    c_s= c^*_s- \sum\limits_{i \in B_p} c^*_i a_{is}
+\end{equation}
+
+Next, by contradiction, let it be shown that Bland’s Rule would not have picked $x_t$ to exit the basis of $D_p$ meaning cycling cannot occur. We confirm the following:
+ 
+ \begin{enumerate}
+     \item $c_s>0$. Since $x_s$ is chosen as the entering basic variable for $D_p$, then it must appear in the objective function as positive. 
+     \item $c^*_s \leq 0 $ and $c^*_t \geq 0$. In $D_q$ the entering variable is $x_t$. According to Bland's Rule, $x_t$ will have the smallest index with a positive coefficient in the optimization row (z-row) of $D_q$. Since $s< t$ then $c^*_s \leq 0 $
+ \end{enumerate}
+    
+.
+Then we have that $\sum\limits_{i \in B_p} c^*_i a_{is} < 0$ so at least one of the terms is negative. 
+So, $x_i$ is:
+
+\begin{enumerate}
+    \item basic in $D_p$
+    \item nonbasic in $D_q$ because $ c^*_i \neq 0$
+    \item fickle and $i \leq t$. 
+    \item But, we cant have that $i=t$ since $i$ was defined so that $c^*_ia_{is}<0$ but $c^*_ta_{ts}>0$. It is known that $c^*_t>0$. Since $x_s$ was chosen to replace $x_t$ in $D_p$ then $a_{ts}>0$ because $x_t$ must place a restriction on the increase of $x_s$. 
+\end{enumerate}
+   
+Thus, since $i<t$, Bland's Rule would pick $x_i$ over $x_t$ to leave basis of $D_p$. 
+
+Also, $c^*_i \leq 0 $ since $i<t$. Since $c^*_ia_{is} < 0 $ then $a_{is} > 0$ which means $x_i$ imposes a restriction on how much $x_s$ can increase. 
+
+Lastly, we prove that the $x_i$ restriction, $x_s \leq b_i/a_{is}$ is as strong as the restriction imposed by $x_t$ where $x_s \leq b_t/a_{ts}$. 
+
+This is proven simply by the fact that $b_i=b_t=0$. Every pivot in a cycle must be degenerate so that the variables keep their values during the simplex method and every fickle variable is zero in any dictionary's solution in the cycle (Camarena,n.d). 
+
+This proof from Chvátal's textbook, explained by Camarena, confirms that we are able to use the simplex method to solve any degenerate linear program or transportation model. 
+
+\section{The Three Major Algorithms}
+\subsection{North-West Corner Point Method}
+Now that the simplex method has proven its usefulness, there are various algorithms the find the initial basic feasible solution in which to start the simplex method. First is the north-west corner point method. Though conveniently trivial, the north-west corner point method obtains a relatively high optimization cost. Because of this, it is rarely used in scholarly work. Nevertheless, the method is explored for comparative reasons. In a transportation tableau, the algorithm starts in the most north west cell, variable $x_{11}$, and travels either down or right until all demand has been met and all supply has been used. The author of \emph{Operations Research: An Introduction} lists the formal steps:
+\begin{enumerate}
+     \item Allocate maximum amount to selected cell. Adjust the column supply and row demand by subtracting allocated amount.
+    \item If resources in a row/column are fulfilled, cross out all cells within that row/column to indicate that no more goods can be transported. If a row and column simultaneously reach zero, choose one to eliminate. 
+    \item If exactly one row/column is left uncrossed,stop. Otherwise move to the right if a column is eliminated, or below if a row has been eliminated. Repeat. (Taha,2016, p.186).
+\end{enumerate}
+    
+It is important to note that diagonal moves on the tableau are not allowed. Once complete, the $x_{ij}$ values give the basic feasible solution to which a cost can be calculated using the optimality equation from section 1. Below is a diagram from \emph{Operations Research: An Introduction} for further understanding. Once this initial basic feasible solution is obtained, the simplex method begins. 
+
+\begin{wrapfigure}
+ \begin{center}
+    \includegraphics[width=0.45\textwidth]{northwest.png}
+     \caption{Figure 2}
+ \end{center}
+\end{wrapfigure}
+
+
+
+
+\subsection{Vogel Approximation Method}
+
+The Vogel approximation method (VAM) is another algorithm to obtain a starting feasible solution. Although less trivial than the other two methods, VAM provides a lower total cost for the transportation model and is used more commonly among scholarly work. This will be discussed further in the following section. For now, the iteration of VAM is presented by Taha in three steps.
+
+\begin{enumerate}
+     \item For each row/column, determine the penalty value by subtracting the smallest unit cost from the second smallest unit cost.
+     
+     \item Pick the single largest penalty, and allocate maximum amount to the cell with the least cost in the penalty row/column. Adjust the supply and demand by subtracting allocated units, and cross out the row/column that is used up. If a row and a column are drained simultaneously, choose only one to cross out, and the other is assigned zero.
+     
+     \item If one row/column with zero supply or demand remains, stop iterations. If one row/column with positive supply/demand remains uncrossed out, determine the basic variables in the row/column by the least-cost method, then stop. If all the remaining rows and columns have zero supply and demand, determine the zero basic variables by the least-cost method then stop. Otherwise, repeat first step (Taha,2016,p.186). 
+     
+\end{enumerate}
+
+Figures 2 and 3 display the first iteration of the VAM process.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{VAM part 1.png}
+    \caption{\label{fig:galaxy}VAM}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{vam part 2.png}
+    \caption{\label{fig:galaxy2}VAM}
+\end{figure}
+
+
+\subsection{Least-Cost Method}
+
+This method is the most intuitive way of achieving the basic feasible solution for the transportation model. Essentially, pick the variable with the least unit cost starting anywhere in the transportation tableau and assign as much to this cell as possible. Cross out the satisfied row/column and move to the next smallest cell until all supply and demand is met. If the supply and demand of a row/column is used up simultaneously, cross out one. A formal set of steps are not necessary for this method, but rather a diagram is more beneficial(see Figure 4). 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.4\textwidth]{least cost.png}
+     \caption{\label{fig:lcm}Least-cost Method.}
+    \label{fig:my_label}
+\end{figure}
+
+
+
+\section{Comparing the Algorithms}
+
+Notice for the algorithms an identical transportation tableau is used in each figure. The total cost using the north-west corner point method is $z = 5(10)+10(2)+5(7)+15(9)+5(20)+10(18)= \$520$ dollars. The cost using LCM and VAM is \$475. This example makes it evident why north-west corner point method is rarely used in practice. Interestingly, the TP produced the same cost for both LCM and VAM, when in fact, VAM usually produces a better optimal solution than LCM. However, this example proves that students learning such algorithms should focus on the VAM and LCM rather than the ladder as it is not usually beneficial to the TP. Going further, VAM is used in most scholarly works though LCM is still present in research; most likely due to its proximity to VAM yet trivial procedures. With that said, it is inevitable to wonder whether these algorithms are legitimately applicable to "real-life" scenarios. Does Coca-Cola use these types of methods to determine transportation from warehouse to grocery store? While the exact system of this large company is unknown, its is vital to understand how complex these TP's can become when variables are not concrete. 
+
+
+
+\section{Transportation Model in Neutrosophic Environment}
+
+In Operations Research and LP modeling, the math seems infinite. There is always a more complicated model, problem, or efficient way for solving. For certain TP's, vague and uncertain information is an issue that is somewhat overlooked. In reality, most business information is not concrete. A new approach to the TP recognizes these uncertainties by introducing fuzzy set theory. Before jumping into the algorithm, we must first understand a fuzzy set. Until now, the TP's examined have all been crisp sets. In a crisp set, an element is strictly a member of the set. For example, a steak belongs in the class of food known as meat. Broccoli does not. In a fuzzy set, elements are allowed partially in a set where each element is given a degree of membership ranging from 0 to 1(Trustees of Princeton University, n.d). For problems with indeterminate or inconsistent information, neutrosophic trapezoidal numbers were introduced as an extension of fuzzy set theory. The three variables represent truth membership degree, $mu_a(x)$, indeterminacy-membership degree, $nu_a(x)$, and falsity-membership degree, $lambda_a(x)$. This set theory is important to real life transportation models since uncontrolled factors are almost expected. Researchers of \emph{A New Approach for Optimization} explain the importance of neutrosophic sets with an example where the crisp set cost of a TP is 1000 units, "the supplier cannot conclude immediately that the precise cost is exactly 1000 units. There may be some neutral part, which is neither truthfulness nor falsity of the statement. This is very close to our human mind reasoning. In the neutral part, there may be some indeterminacy in deciding unit transportation cost, demand and supply units due to various causes like vehicle routing, road factors, no uniformity in traffic regulations, delivery time of goods, poor demand forecasting, demand mismatches, price fluctuations, lack of trust, and so on" (Thamaraiselvi & Santhi, 2016). 
+
+\subsection{Neutrosophic Sets Algorithm}
+In this section, we will discuss the algorithm of solving the TP using neutrosophic sets. To keep things concise, this paper will not go deep into the theory of neutrosphic sets. Simply stated, this algorithm uses single valued trapezoidal neutrosophic numbers where $a=<(a_1,a_2,a_3,a_4); w_a,u_a,y_a$> such that $a_n \in R$ where each value is assigned to a maximum truth, minimum indeterminacy, and minimum falsity membership degree. By definition, $a$ is an ill-defined quantity between $[a_2,a_3]$. It is also important to note that the score function of $a$ is 
+\begin{equation}
+    S(a)=(\frac{1}{16})[a_1+a_2+a_3+a_4]*[\mu_a+(1-\nu_a)+(1-\lambda_a)]
+\end{equation}
+
+This neutrosophic algorithm can be applied to situations where demand, supply, and cost are uncertain. However, for this example, we will follow a model from the research of \emph{A New Approach for Optimization of Real Life Transportation Problem in Neutrosophic Environments} where cost is uncertain but their is no uncertainty about demand and supply quantity. The same constraints hold for this TP but the optimization function becomes: 
+\begin{equation}
+    Z^{N} = \sum\limits_{i=1}^m \sum\limits_{j=1}^n c^{N}_{ij} x_{ij}  
+\end{equation}
+
+where an initial basic feasible solution is found by the steps listed:
+\begin{enumerate}
+
+
+\item Calculate the score value of each neutrosophic cost $c^N_{ij}$ using equation 5 and replace the values in the transportation tableau with the crisp values. 
+\item perform VAM (see section 3.2) on model. 
+\end{enumerate}
+
+Next, the neutrosophic optimal solution is found using the simplex method for transportation models. Once the basic feasible solution is found, determine the entering basic variable and create a closed loop path back to the entering variable. Allocate minimum decreasing value to each increasing/decreasing cell. Repeat iterations until all net cost change is $\geq 0$). The following tables from Thamaraiselvi and Santhi's journal illustrate the algorithm.
+
+\begin{figure}[h]
+\centering
+   \includegraphics[width= 0.5\columnwidth]{Table1.png}
+   \caption{Neutrosophic Data}
+   \label{fig:myfig1}
+
+   \includegraphics[width= 0.5\columnwidth]{table2.png}
+   \caption{Score Value Tableau}
+   \label{fig:myfig2}
+  \end{figure} 
+  
+ \begin{figure}
+\centering
+   \includegraphics[width= 0.5\columnwidth]{table3.png}
+   \caption{Caption 1}
+   \label{fig:myfig1}
+
+   \includegraphics[width= 0.5\columnwidth]{table4.png}
+   \caption{Caption 2}
+   \label{fig:myfig2}
+\end{figure}
+
+
+
+
+
+Thus, the minimum neutrosophic cost is: 
+\begin{multline}
+\centering
+      &Z = 3(3,5,6,8);0.6,0.5,0.4 +23(5,8,10,14);0.3,0.6,0.6
+     &+14(0,1,3,6);0.7,0.5,0.3 +10(9,11,14,16);0.5,0.4,0.7
+     &+28(5,7,8,10);0.5,0.4,0.7+2(5,9,14,19);0.3,0.7,0.6
+    &= (364,537,682,908);0.3,0.7,0.7 \\
+\end{multline}
+      
+
+   
+
+
+
+(Thamaraiselvi \& Santhi, 2016). 
+\subsection{Analyzing the Neutrosophic Results}
+
+The minimum cost of the model will be greater than \$364 but less that \$908. When Z lies between \$537 and \$682, the overall truthfulness or acceptance  is $30 \%$, degree of indeterminacy is $70\%$ and degree of falsity is $70 \%$. When the total cost lies outside of this interval, a piece-wise function is used to determine the three different degree values which is presented in the authors' article (Thamaraiselvi \& Santhi, 2016). Given more context to the problem, decision makers could then decide if this is an adequate model.
+
+\section{Conclusion}
+
+Transportation of supplies is an essential factor of business logistics. The transportation model's unique structure has allowed specific algorithms to be developed for it. These algorithms, though trivial in procedure, prove very useful. They are constantly been studied, and thus, improved. This paper only scratches the surface of the transportation model and its possibilities. The introduction of fuzzy sets in a neutrosophic environment has been an intriguing addition to decision making, and thus, has been adopted already by big name companies. 
+
+
+\section{References}
+\bibliographystyle{alpha}
+\bibliography{style}
+
+
+Camarena, O. A. (n.d.). Bland’s Rule Guarantees Termination. Bland's rule Guarantees Termination. Retrieved April 18, 2022, from www.matem.unam.mx/~omar/math340/blands-rule.html \\
+
+
+Chvátal Vašek, &amp; Chvátal Vašek. (1984). Pitfalls and how to avoid them. In Linear Programming (pp. 37–38). essay, Freeman. \\
+
+Taha, H. A. (2016).Operations Research: An Introduction. [Yuzu]. Retrieved from\\ www.reader.yuzu.com/\#/books/9780134480190/\\
+
+Thamaraiselvi, A., \& Santhi, R. (2016). A New Approach for Optimization of Real Life Transportation Problem in Neutrosophic Environment. Mathematical Problems in Engineering, 2016, 1–9. www.doi.org/10.1155/2016/5950747\\ 
+
+The Trustees of Princeton University. (n.d.). Fuzzy sets and Pattern Recognition. Princeton University. Retrieved April 18, 2022, from\\ www.cs.princeton.edu/courses/archive/fall07/cos436/HIDDEN/Knapp/fuzzy002.htm \\
+
+The Transportation Problem: LP formulations. (n.d.). Retrieved April 22, 2022, from\\ www.personal.utdallas.edu/~scniu/OPRE-6201/documents/TP1-Formulation.pdf\\
+
+
+\end{document}
